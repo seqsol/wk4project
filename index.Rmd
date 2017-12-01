@@ -1,0 +1,101 @@
+---
+title       : Week 4 Shiny Project
+subtitle    : A small DNA/RNA sequence analysis tool
+author      : Xiaolong He
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [bootstrap, shiny, interactive]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+---
+
+## Introduction
+
+This shiny application accepts DNA or RNA sequence as the input and performs following analysis
+
+1. Find the length of the sequence
+2. Calculate the proportion of each base in the sequence
+3. Find the complementary sequence
+4. Find the amino acid sequence encoded by the sequence
+
+--- 
+
+## Input
+
+Following are the examples of input sequences
+<p style="text-align: justify; word-break: break-all; font-size: 50%;">
+DNA: <br/>
+TCTAACAAGAAGGACATTGATGACAACAGCAATGGAACCTATGAGAAAATGCAAAACTCAGCACCACGAAAACAAAGAGGACAGAGAAAAGAACGATCTCCTCAGCAGAATATAGTATCTTGTGTAAGTGTAAGCACCCAGACAGCTTCAGATGATCAAGCTGGTAAACTGTGGGATGAACTCAGTCTGGTTGGGCTTCCAGATGCCATTGATATCCAAGCCTTATTTGATTCTACAGGCACTTGTTGGGCTCATCACCGTTGTGTGGAGTGGTCACTAGGAGTATGCCAGATGGAAGAACCATTGTTAGTGAACGTGGACAAAGCTGTTGTCTCAGGGAGCACAGAACGATGTGCATTT
+ <br/> <br/>
+RNA: <br/>
+AGGCAGAACGGUCGCCGCGUCGCCUCAGCACGGACCUCCAGGGAGCUCCUCAGCAAGAUCCUGCCAGGGCGCCCCUCAGCGCGAUUCUGCCGGGGUGCCUCUCAGCGUGGUCCUCCCCGGGGCUCCUCAGCACGAUUCUCCCGGUGCGCCCCUCAGCGCGGUCCUCCUCGGUGCGUCAGUCAUCGUGGUUCUCCCCGGCGCGCCCCUCGGCGCGGUUCUCCUCGGGGCUCCUCAGCGCGGCGCUCUUCUGGGGGCUCCUCGGCGCAGUUCUCCCCGGGGACUCCUCGGCGCCGUUCUCCUCGGGGCACCCGGGGCUUUUCGGCGCGGUUCUCCCCGGGGGUUCUUCGGCGCGGUUGUCCC
+</p>
+
+---
+
+## User Interface
+
+```{r opts.label='shiny'}
+library(shiny)
+
+slidifyUI(
+      titlePanel(h3("Sequence Analysis Tool")),
+  # Sidebar panel for input of DNA sequence and selection of analysis 
+    sidebarPanel(
+       textAreaInput("na1",
+                   "Please input your DNA Sequence below:", width='100%', rows = 10, placeholder = "DNA Sequence...", resize="vertical"),
+
+    checkboxGroupInput("todo1", "Check what you want to run:", c("Length", "Nucleotide composition", "Complementary sequence", "Amino acid sequence"), width="100%"), 
+    class='span4'
+    ),
+    
+    # Show the results of analysis
+    mainPanel()
+)
+```
+
+---
+
+## Functional Shiny Application
+You can test the application with the sequence in the text box or your own DNA or RNA sequence
+```{r opts.label='shiny'}
+library(shiny)
+
+slidifyUI(
+      titlePanel(h3("Sequence Analysis Tool")),
+  # Sidebar panel for input of DNA sequence and selection of analysis 
+    sidebarPanel(
+       textAreaInput("na2",
+                   "Please input your DNA Sequence below:", width='100%', rows = 10, value="AATAAACTAGTTGAGAAGCAGAACCCAGCTGAAGGACTGCAAACTTTGGGGGCTCAAATGCAAGGTGGTTTTGGAT", resize="vertical"),
+
+    checkboxGroupInput("todo", "Check what you want to run:", c("Length", "Nucleotide composition", "Complementary sequence", "Amino acid sequence"), width="100%"), 
+    class='span4'
+    ),
+    
+    # Show the results of analysis
+    mainPanel(
+       conditionalPanel(
+            condition = "input.todo.indexOf('Length') != -1",
+            h4(strong("Length of the sequence")),
+            h4(textOutput("len"))
+       ),
+       conditionalPanel(
+           condition = "input.todo.indexOf('Nucleotide composition') != -1",
+           h4(strong("Proportion of each base in the sequence")),
+           plotOutput("comp")
+       ),
+       conditionalPanel(
+           condition = "input.todo.indexOf('Complementary sequence') != -1",
+            h4(strong("Complementary sequence of the DNA")),
+            p(textOutput("compl"))
+        ),
+       conditionalPanel(
+           condition = "input.todo.indexOf('Amino acid sequence') != -1",
+           h4(strong("Open reading frames encoded by the sequence")),
+           p(textOutput("tr"))
+       )
+    )
+)
+
+```
